@@ -1,17 +1,28 @@
 package com.example.livedatawithflowsample
 
-import android.util.Log
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
+import com.example.livedatawithflowsample.data.Theme
 import com.example.livedatawithflowsample.data.ThemeDataSource
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import javax.inject.Inject
 
+@FlowPreview
+@ExperimentalCoroutinesApi
 class MainViewModel(private val themeDataSource: ThemeDataSource) : ViewModel() {
 
-    init {
-        Log.d("MainViewModel", "$themeDataSource")
+    // changes of theme flows here
+    private val _theme =
+        themeDataSource.themeFlow().asLiveData(viewModelScope.coroutineContext)
+
+    val theme: LiveData<Theme>
+        get() = _theme
+
+    fun toggleTheme() {
+        themeDataSource.toggleTheme()
     }
 
+    @Suppress("UNCHECKED_CAST")
     class Factory @Inject constructor(
         private val themeDataSource: ThemeDataSource
     ) : ViewModelProvider.NewInstanceFactory() {
