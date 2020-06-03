@@ -23,23 +23,14 @@ class ThemeDataSource @Inject constructor(
     // By Channel
     private val themeChannel: ConflatedBroadcastChannel<Theme> by lazy {
         ConflatedBroadcastChannel<Theme>().also { channel ->
-            val defaultTheme = sharedPreferences.getString(
-                PREFERENCE_KEY_THEME, null
-            ) ?: Theme.LIGHT.name
-
             // Not read-safe because you don't forget to set initial value.
-            channel.offer(Theme.valueOf(defaultTheme))
+            channel.offer(getDefaultTheme())
         }
     }
 
     // By StateFlow
     // read-safe: you must specify initial value.
-    private val themeStateFlow = MutableStateFlow(
-        Theme.valueOf(
-            sharedPreferences.getString(PREFERENCE_KEY_THEME, null)
-                ?: Theme.LIGHT.name
-        )
-    )
+    private val themeStateFlow = MutableStateFlow(getDefaultTheme())
 
     @FlowPreview
     fun themeFlow(): Flow<Theme> {
@@ -52,23 +43,31 @@ class ThemeDataSource @Inject constructor(
 
     fun toggleTheme() {
         val toggled = themeChannel.value.toggle()
-        sharedPreferences
-            .edit()
-            .putString(PREFERENCE_KEY_THEME, toggled.name)
-            .apply()
+        save(toggled)
 
-        // notify
+        // notify change
         themeChannel.offer(toggled)
     }
 
     fun toggleThemeStateFlow() {
         val toggled = themeStateFlow.value.toggle()
+        save(toggled)
+
+        // notify change
+        themeStateFlow.value = toggled
+    }
+
+    private fun getDefaultTheme(): Theme {
+        val name = sharedPreferences.getString(
+            PREFERENCE_KEY_THEME, null
+        ) ?: Theme.LIGHT.name
+        return Theme.valueOf(name)
+    }
+
+    private fun save(theme: Theme) {
         sharedPreferences
             .edit()
-            .putString(PREFERENCE_KEY_THEME, toggled.name)
+            .putString(PREFERENCE_KEY_THEME, theme.name)
             .apply()
-
-        // notify
-        themeStateFlow.value = toggled
     }
 }
