@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">LiveDataWithFlowSample</string>
-    <string name="toggle_theme">toggle theme</string>
+    <string name="toggle_theme">toggle theme by Channel</string>
+    <string name="toggle_by_state_flow">toggle theme by StateFlow</string>
 </resources>

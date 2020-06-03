@@ -28,15 +28,25 @@ class MainActivity : DaggerAppCompatActivity() {
         viewModel = ViewModelProvider(this, factory).get(MainViewModel::class.java)
 
         viewModel.theme.observe(this, Observer { theme ->
-            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-            when (theme) {
-                Theme.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                Theme.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }
+            if (USE_CHANNEL) changeTheme(theme)
+        })
+        viewModel.themeStateFlow.observe(this, Observer { theme ->
+            if (!USE_CHANNEL) changeTheme(theme)
         })
 
         binding.themeButton.setOnClickListener {
             viewModel.toggleTheme()
+        }
+        binding.themeStateFlowButton.setOnClickListener {
+            viewModel.toggleThemeStateFlow()
+        }
+    }
+
+    private fun changeTheme(theme: Theme) {
+        @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+        when (theme) {
+            Theme.LIGHT -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            Theme.DARK -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
     }
 }
