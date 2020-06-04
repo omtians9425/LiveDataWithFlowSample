@@ -44,11 +44,9 @@ ThemeDataSource.kt
 
 MainViewModel.kt
 ~~~kotlin
- val theme =
-     themeDataSource.themeFlow().asLiveData(viewModelScope.coroutineContext)
+ val theme =　themeDataSource.themeFlow().asLiveData(viewModelScope.coroutineContext)
 
- val themeStateFlow =
-     themeDataSource.themeStateFlow().asLiveData(viewModelScope.coroutineContext)
+ val themeStateFlow =　themeDataSource.themeStateFlow().asLiveData(viewModelScope.coroutineContext)
 ~~~
 
 
