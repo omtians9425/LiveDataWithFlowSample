@@ -11,10 +11,10 @@ import javax.inject.Inject
 class MainViewModel(private val themeDataSource: ThemeDataSource) : ViewModel() {
 
     val theme =
-        themeDataSource.themeFlow().asLiveData(viewModelScope.coroutineContext)
+        themeDataSource.themeFlowByChannel.asLiveData(viewModelScope.coroutineContext)
 
     val themeStateFlow =
-        themeDataSource.themeStateFlow().asLiveData(viewModelScope.coroutineContext)
+        themeDataSource.themeStateFlow.asLiveData(viewModelScope.coroutineContext)
 
     fun toggleTheme() {
         themeDataSource.toggleTheme()

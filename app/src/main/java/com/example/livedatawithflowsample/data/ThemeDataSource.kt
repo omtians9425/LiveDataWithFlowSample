@@ -7,6 +7,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,40 +22,35 @@ class ThemeDataSource @Inject constructor(
 ) {
 
     // By Channel
-    private val themeChannel: ConflatedBroadcastChannel<Theme> by lazy {
+    private val _themeChannel: ConflatedBroadcastChannel<Theme> by lazy {
         ConflatedBroadcastChannel<Theme>().also { channel ->
-            // Not read-safe because you don't forget to set initial value.
+            // Not read-safe because you have to remember to set the initial value.
             channel.offer(getDefaultTheme())
         }
     }
+    val themeFlowByChannel: Flow<Theme>
+        get() = _themeChannel.asFlow()
 
     // By StateFlow
     // read-safe: you must specify initial value.
-    private val themeStateFlow = MutableStateFlow(getDefaultTheme())
-
-    @FlowPreview
-    fun themeFlow(): Flow<Theme> {
-        return themeChannel.asFlow()
-    }
-
-    fun themeStateFlow(): Flow<Theme> {
-        return themeStateFlow
-    }
+    private val _themeStateFlow = MutableStateFlow(getDefaultTheme())
+    val themeStateFlow: StateFlow<Theme>
+        get() = _themeStateFlow
 
     fun toggleTheme() {
-        val toggled = themeChannel.value.toggle()
+        val toggled = _themeChannel.value.toggle()
         save(toggled)
 
         // notify change
-        themeChannel.offer(toggled)
+        _themeChannel.offer(toggled)
     }
 
     fun toggleThemeStateFlow() {
-        val toggled = themeStateFlow.value.toggle()
+        val toggled = _themeStateFlow.value.toggle()
         save(toggled)
 
         // notify change
-        themeStateFlow.value = toggled
+        _themeStateFlow.value = toggled
     }
 
     private fun getDefaultTheme(): Theme {
